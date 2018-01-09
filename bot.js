@@ -17,7 +17,7 @@ function Bot(obj){
       this.children = obj.children; //
       this.unexploredMoves = obj.unexploredMoves;
       this.toPlay = obj.toPlay;
-      this.moveToGetHere = obj.moveToGetHere;
+      this.moveToGetHere = parseInt(obj.moveToGetHere);
       this.addChild = function(obj){ //expects: obj = {game:_, move:__}
         if (obj.game.playMove(obj.move) !== 'collision'){
           var heuristic = evaluateGame(obj.game, this.data.heuristic, obj.move);
@@ -29,7 +29,7 @@ function Bot(obj){
                                        moveToGetHere: obj.move,
                                        toPlay: obj.game.currentPlayer}));
           this.unexploredMoves = this.unexploredMoves.filter(function(move){
-            return move !== obj.move;
+            return(parseInt(move) !== parseInt(obj.move));
           });
           return this.children[this.children.length - 1]; //return the node that was just created.
         } else {console.log('The bot made an illegal move!'); console.log(obj.move); console.log(obj.game);}
@@ -68,12 +68,6 @@ function Bot(obj){
     this.startABTree = function(){ // creates an alpha-beta pruned tree.
                                     // Pseudocode from https://www.youtube.com/watch?v=zp3VMe0Jpf8
       var maxDepth = this.depth;
-      this.beforeReturn = function(newMinimax){
-        node.data.miminax = newMinimax;
-        var length = this.currentGame.moveHistory.length;
-        if (this.currentGame.moveHistory.length > this.rootGame.moveHistory.length){this.currentGame.undoMove();}
-        if (this.currentGame.moveHistory.length !== length -1){console.log('this should only happen once.');}
-      }
       this.maxValue = function(node, a, b){//
         if (node.depth - this.rootNode.depth >= maxDepth){ //If this node is terminal,
           node.data.minimax = node.data.heuristic[0];
@@ -158,7 +152,7 @@ function Bot(obj){
             if (this.currentGame.moveHistory.length > this.rootGame.moveHistory.length){this.currentGame.undoMove();}
             node.children = node.children.sort(function(al,bert){return (al.data.minimax - bert.data.minimax); }); //ascending order.
             return node.data.minimax;}
-          if (newMinimax <= b) {b = newMinimax;}
+          if (newMinimax < b) {b = newMinimax;}
         }
         while(node.unexploredMoves.length > 0){
           nextNode = node.addChild({game: this.currentGame, move: node.unexploredMoves[0]});
@@ -168,7 +162,7 @@ function Bot(obj){
             if (this.currentGame.moveHistory.length > this.rootGame.moveHistory.length){this.currentGame.undoMove();}
             node.children = node.children.sort(function(al,bert){return (al.data.minimax - bert.data.minimax); }); //ascending order.
             return node.data.minimax;}
-          if (newMinimax <= b) {b = newMinimax;}
+          if (newMinimax < b) {b = newMinimax;}
         }
         //We sort the nodes so that when we check the minimax in the future, we'll start by checking the minimax branch.
         node.children = node.children.sort(function(al,bert){return (al.data.minimax - bert.data.minimax); }); //ascending order.
@@ -178,16 +172,20 @@ function Bot(obj){
       let minimax;
       if (this.rootNode.toPlay === 'X'){
         var length = this.currentGame.moveHistory.length;
+        //console.log(this.rootNode);
         minimax = this.maxValue(this.rootNode, -Infinity, Infinity);
+        this.currentGame.validMoves();
         if (this.rootGame.validMoves().length !== this.rootNode.children.length){
-          console.log('horrible error')
+          console.log('horrible error');
         }
         return minimax;
       }
       else if(this.rootNode.toPlay === 'O'){
         var length = this.currentGame.moveHistory.length;
         minimax = this.minValue(this.rootNode, -Infinity, Infinity);
-        if (this.rootGame.validMoves().length !== this.rootNode.children.length){console.log('horrible error');}
+        this.currentGame.validMoves();
+        if (this.rootGame.validMoves().length !== this.rootNode.children.length){console.log('horrible error');
+      }
         return minimax;
       }
     }
@@ -199,39 +197,15 @@ function Bot(obj){
         return child.data.minimax === optimal;
       });
       if (recommendations.length === 0){
-        console.log(optimal);
-        console.log(this.rootNode);
-        console.log(this.currentGame);
-        console.log(this.rootGame);
          return 'Game Over';}
       return recommendations[0].moveToGetHere; //if no argument is given, we return the move to make. The argument is ignored.
     }
-    this.recursiveRemove = function(node){
-      //removes the given node and all its descendants.
-      var index = 0;
-      while(node.children.length > 0){
-        this.recursiveRemove(node.children[0]);
-        node.children = node.children.slice(1,node.children.length);
-        }
-      node.children = [];
-      node = null;
-      return 'removed';
-    }
-    this.receiveMove = function(move){ //This function should take a move and make that move
+     this.receiveMove = function(move){ //This function should take a move and make that move
       if (! this.rootGame.validMoves().includes(parseInt(move))){
         console.log('That move is not valid.');
-        console.log(move);
-        console.log(this.rootGame);
-        console.log(this.currentGame);
       }
       this.rootGame.playMove(move); //Mavke the move on the root game.
       this.currentGame.playMove(move);
-      var nodesToRemove = this.rootNode.children.filter(function(child){
-        return child.moveToGetHere !== parseInt(move);
-      }); //These nodes represent moves which did not occur.
-      while (nodesToRemove.length > 0){
-        this.recursiveRemove(nodesToRemove.shift());
-      }
       this.rootNode.children = this.rootNode.children.filter(function(child){return (child.moveToGetHere === parseInt(move));});
       this.rootNode = this.rootNode.children[0]; // there should be only one node there
       this.rootNode.parent = null; //remove the old rootNode.
@@ -246,12 +220,11 @@ function Bot(obj){
   this.recommendMove = function(){ return this.gameTree.recommendMove();}
 
   this.receiveMove = function(move){
-
-      var recommendation;
-      this.gameTree.receiveMove(move);
-      this.gameTree.startABTree();
-      recommendation = this.gameTree.recommendMove();
-      return recommendation;
+    var recommendation;
+    this.gameTree.receiveMove(move);
+    this.gameTree.startABTree();
+    recommendation = this.gameTree.recommendMove();
+    return recommendation;
   }
 }
 
