@@ -21,15 +21,59 @@
     </div>
   </div>
 
+
+
   <div class="container">
     <div class="row">
       <h1>Projects</h1>
     </div>
+    <!--wigner function project-->
+    <p>
+      I've been working on a calculator for the Wigner function to assist me with various computations.
+      <a href="https://github.com/doogrammargood/Wigner-Function-Calculator">Here</a> is a link to the code.
+    </p>
+    <p>
+      To predict the behavior of complex systems, like nested pendulums, it is nice to work in phase space,
+      where the position and momentum of each degree of freedom are plotted. This is called Hamiltonian mechanics.
+      Wigner adapted the phase-space picture to the quantum case. There is an added complication that position and momentum cannot
+      be determined simultaneously. Wigner devised a scheme to introduce negative probabilities so that the phase space picture
+      would agree with any measurement that could be performed. The techniques appear to come from harmonic analysis.
+    </p>
+    <p>
+      Wigner's work applied only to infinite-dimensional systems, but in the context of quantum information, it is more natural to work with
+      finite-dimensional systems. David Gross <a href="https://arxiv.org/pdf/quant-ph/0602001.pdf">adapted</a> Wigner's function to the odd finite-dimensional case, and convicingly argued that
+      this function is unique.
+    </p>
+    <p>
+      I wrote a python program that calculate the Wigner function, with an emphasis on states of prime power dimension, considered as single-particle systems.
+      The program can calculate minimum-uncertainty states for odd-prime dimensions which are 3 mod 4, and can interconvert unitary and affine transformations.
+    </p>
+
+    <div class="container">
+    <img src="./larger_no_overlap_cropped.png" style="padding:2px; border:thin solid grey;" alt="screenshot of Wigner function calculator.">
+    </div>
+    <!--tic tac toe project-->
+    <br>
+    <hr style="height:2px;border-width:0;color:gray;background-color:gray">
     <div class="row">
       <p>
-        My current project is a multidimensional Tic-Tac-Toe game written in Javascript.<br>
-        <a href="https://github.com/doogrammargood/chathat">The code</a>
-
+        My old project was a multidimensional <a href="https://github.com/doogrammargood/chathat">Tic-Tac-Toe game</a> written in Javascript.<br>
+      </p>
+      <p>
+        It was lots of fun to write. I gave the positions addresses, along with a function from the addresses to the numbers 1 .. #positions, based on base-9 arithmetic. By positions,
+        I don't just mean the 81 places you can play, but the 81+9+1=91 groupings of buttons. Interestingly, if you index starting at 0, you'll run into a problem:
+        The top left square's address is [0,0,0], the bigger top left square's address is [0,0], and the whole board has address [0]. These all 0 when interpreted as base-9 numbers!
+        For this project, I found it more convenient to label starting with 1.
+      </p>
+      <br>
+      <p>
+        The other fun part about this project was devising the strategy for the ai. One wins at tic-tac-toe by capturing a line. This means that you should
+        judge your position based on how many lines you control. On the outer 3x3 board, the individual squares themselves are boards, so players might have partial control
+        over the squares. The partial control ought to be calculated recursively, so that control over the squares is calculated in the same way as control over
+        the whole board. Thus, a strategy is determined by how much to value 1 on a line and how much to value 2 on a line, then propagating these calculations
+        upward to determine who is winning the biggest board and by how much. You can put some simple bounds on these two parameters and attain a class of strategies,
+        and the one implemented in the code is chosen as a midpoint. This analysis leaves out certain things, such as that 2 partial lines which are completed by the same
+        square is less valuable than 2 partial lines completed by different squares.
       </p>
           <div id="boardContainer">
             <div id="app" />
@@ -59,19 +103,6 @@
       <li>Through development, the undo move button has been buggy. It had better work now, because the bot relies on this function.</li>
     </ul>
     <br/>
-    <p>
-      My next project will be to create a program which takes a video of a person juggling balls and uses some computer vision techniques to determine the siteswap.
-      Jumbled code can be found <a href= "https://github.com/doogrammargood/potatoWasp">here</a>.
-      My plan is the following:
-        <ol>
-          <li>Apply a background filter based on motion.</li>
-          <li>Use Hough Circle detection to find circles, which are hopefully mostly balls.</li>
-          <li>Plot these balls and fit parabolas to them.</li>
-          <li>Use wishful thinking on throws that are too fast to be captured on camera.</li>
-        </ol>
-      Interestingly, apart from the wishful thinking, there's no neural networks or probabilistic machine learning.
-      When this plan fails, I'll try and train a neural network to watch the juggler's hands to handle the vamps.
-    </p>
   </div>
 
   </body>
